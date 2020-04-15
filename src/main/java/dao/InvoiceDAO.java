@@ -9,8 +9,10 @@ import java.util.List;
 
 public class InvoiceDAO extends AbstractDAO<Invoice> {
     public List<Invoice> findByOrder(Order order) {
+        this.previous = order;
+
         List<Pair<String, Object>> reference = new LinkedList<>();
-        reference.add(new Pair("_order", order.getId()));
+        reference.add(new Pair<>("_order", order.getId()));
         return select(reference);
     }
 }

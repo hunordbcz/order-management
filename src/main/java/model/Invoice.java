@@ -3,6 +3,8 @@ package model;
 import bll.OrderBLL;
 import bll.ProductBLL;
 
+import java.util.Objects;
+
 public class Invoice {
     private Integer id;
     //    private Order x_order;
@@ -16,6 +18,19 @@ public class Invoice {
 
     public Invoice() {
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Invoice invoice = (Invoice) o;
+        return Objects.equals(id, invoice.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public Integer getId() {
@@ -45,7 +60,11 @@ public class Invoice {
 
     public void set_order(Integer order) {
         OrderBLL orderBLL = new OrderBLL();
-        this._order = orderBLL.findById(order);
+        this._order = orderBLL.findById(order, this);
+    }
+
+    public void set_order(Order order) {
+        this._order = order;
     }
 
 //    public void setProduct_id(Integer product_id) {

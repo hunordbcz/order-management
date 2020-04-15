@@ -39,7 +39,24 @@ public class Order {
         return x_invoices;
     }
 
-    public void setX_invoices(List<Invoice> x_invoices) {
-        this.x_invoices = x_invoices;
+    private Boolean containsInvoice(Invoice invoice) {
+        for (Invoice inv : x_invoices) {
+            if (inv.equals(invoice)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addX_Invoices(List<Invoice> x_invoices) {
+        for (Invoice invoice : x_invoices) {
+            if (!containsInvoice(invoice)) {
+                this.x_invoices.add(invoice);
+            }
+        }
+    }
+
+    public void addX_Invoices(Invoice invoice) {
+        this.x_invoices.add(invoice);
     }
 }

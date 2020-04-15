@@ -14,6 +14,14 @@ public class InvoiceBLL {
         invoiceDAO = new InvoiceDAO();
     }
 
+    public Invoice findById(int id) {
+        Invoice st = invoiceDAO.findById(id);
+        if (st == null) {
+            throw new NoSuchElementException("The product with id =" + id + " was not found!");
+        }
+        return st;
+    }
+
     public List<Invoice> findByOrder(Order order) {
         List<Invoice> result = invoiceDAO.findByOrder(order);
         if (result == null) {

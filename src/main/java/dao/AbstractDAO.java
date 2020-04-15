@@ -2,6 +2,7 @@ package dao;
 
 import bll.InvoiceBLL;
 import connection.ConnectionFactory;
+import model.Invoice;
 import model.Order;
 import model.Pair;
 import util.Constants;
@@ -28,11 +29,13 @@ public class AbstractDAO<T> {
 
     private final List<String> fieldNames;
     private final Class<T> type;
+    protected Object previous;
 
     @SuppressWarnings("unchecked")
     public AbstractDAO() {
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         this.fieldNames = getDeclaredFields();
+        this.previous = null;
     }
 
     private List<String> getDeclaredFields() {
@@ -104,6 +107,13 @@ public class AbstractDAO<T> {
         sb.append(this.getWHERE(reference));
 
         return sb.toString();
+    }
+
+    private String createDeleteQuery(List<String> reference) {
+        String sb = "DELETE FROM " +
+                Constants.getTablePrefix() + type.getSimpleName() +
+                this.getWHERE(reference);
+        return sb;
     }
 
     private Integer sendUpdate(String query, List<Object> values) {
@@ -220,14 +230,38 @@ public class AbstractDAO<T> {
         return sendUpdate(query, referenceValues) != 0;
     }
 
+    public Boolean delete(List<Pair<String, Object>> rules) {
+        List<String> fields = new LinkedList<>();
+        List<Object> values = new LinkedList<>();
+
+        if (rules == null) {
+            return false;
+            //todo throw exception no reference given
+        }
+
+        for (Pair<String, Object> rule : rules) {
+            fields.add(rule.first);
+            values.add(rule.second);
+        }
+
+        String query = createDeleteQuery(fields);
+
+        return sendUpdate(query, values) != 0;
+    }
+
     public List<T> findAll() {
         return this.select(null);
     }
 
     public T findById(int id) {
         List<Pair<String, Object>> rules = new LinkedList<>();
-        rules.add(new Pair("id", id));
-        return select(rules).get(0);
+        rules.add(new Pair<>("id", id));
+
+        List<T> response = select(rules);
+        if (response != null && !response.isEmpty()) {
+            return response.get(0);
+        }
+        return null;
     }
 
     private List<T> createObjects(ResultSet resultSet) {
@@ -237,16 +271,29 @@ public class AbstractDAO<T> {
             while (resultSet.next()) {
                 T instance = type.newInstance();
                 for (String fieldName : fieldNames) {
+
                     Object value = resultSet.getObject(fieldName);
                     PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, type);
-//                    Method method = propertyDescriptor.getWriteMethod();
-                    Method method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
+                    Method method;
+
+                    if (fieldName.equals("_order") && previous != null) {
+                        method = propertyDescriptor.getWriteMethod();
+                        value = previous;
+                    } else {
+                        method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
+                    }
+
                     method.invoke(instance, value);
+
                 }
 
                 if (instance instanceof Order) {
                     InvoiceBLL inv = new InvoiceBLL();
-                    ((Order) instance).setX_invoices(inv.findByOrder((Order) instance));
+                    if (previous != null) {
+                        ((Order) instance).addX_Invoices((Invoice) previous);
+                        previous = null;
+                    }
+                    ((Order) instance).addX_Invoices(inv.findByOrder((Order) instance));
                 }
 
                 list.add(instance);
@@ -255,7 +302,6 @@ public class AbstractDAO<T> {
             e.printStackTrace();
         } catch (IllegalArgumentException | InvocationTargetException | SQLException | NoSuchMethodException e) {
             e.printStackTrace();
-            System.out.format("Invocation of - failed because of: %s%n", e.getCause().getMessage());
         }
         return list;
     }

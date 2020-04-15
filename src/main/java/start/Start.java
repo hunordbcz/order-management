@@ -1,7 +1,9 @@
 package start;
 
+import bll.InvoiceBLL;
 import bll.OrderBLL;
 import bll.StudentBLL;
+import model.Invoice;
 import model.Order;
 import model.Student;
 
@@ -22,11 +24,13 @@ public class Start {
 
 		StudentBLL studentBll = new StudentBLL();
 		OrderBLL orderBLL = new OrderBLL();
+		InvoiceBLL invoiceBLL = new InvoiceBLL();
 
 		Student student1 = null;
 		List<Student> studentList = null;
 		try {
 			Order order = orderBLL.findById(1);
+			Invoice invoice = invoiceBLL.findById(1);
 			System.out.println("x");
 //			student1 = studentBll.findById(1245);
 //			student1.setId(1);
