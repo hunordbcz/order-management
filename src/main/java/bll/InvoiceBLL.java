@@ -14,6 +14,14 @@ public class InvoiceBLL {
         invoiceDAO = new InvoiceDAO();
     }
 
+    public Boolean insert(Invoice invoice) {
+        if (!invoiceDAO.insert(invoice)) {
+            //todo throw new Couldn't insert.
+            return false;
+        }
+        return true;
+    }
+
     public Invoice findById(int id) {
         Invoice st = invoiceDAO.findById(id);
         if (st == null) {

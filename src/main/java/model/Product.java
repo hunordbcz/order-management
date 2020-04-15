@@ -10,6 +10,12 @@ public class Product {
 
     }
 
+    public Product(String name, Double quantity, Double price) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -40,5 +46,9 @@ public class Product {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double addQuantity(Double quantity) {
+        return this.quantity += quantity;
     }
 }

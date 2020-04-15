@@ -13,6 +13,14 @@ public class OrderBLL {
         orderDAO = new OrderDAO();
     }
 
+    public Boolean insert(Order order) {
+        if (!orderDAO.insert(order)) {
+            //todo throw new Couldn't insert.
+            return false;
+        }
+        return true;
+    }
+
     public Order findById(int id) {
 
         Order st = orderDAO.findById(id);

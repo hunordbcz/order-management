@@ -6,6 +6,7 @@ import model.Invoice;
 import model.Order;
 import model.Pair;
 import util.Constants;
+import util.StatementTypes;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -72,22 +73,28 @@ public class AbstractDAO<T> {
 
     private String createInsertQuery(T t) {
         StringBuilder sb = new StringBuilder();
+        StringBuilder structure = new StringBuilder();
+        StringBuilder values = new StringBuilder();
 
         sb.append("INSERT INTO ");
         sb.append(Constants.getTablePrefix()).append(type.getSimpleName());
         sb.append(" (");
 
-        sb.append(String.join(", ", this.fieldNames));
-
-        sb.append(") VALUES (");
-
         for (int i = 0; i < this.fieldNames.size(); i++) {
-            sb.append("?");
+            if (this.fieldNames.get(i).equals("id")) {
+                continue;
+            }
+            structure.append(this.fieldNames.get(i));
+            values.append("?");
             if (i != this.fieldNames.size() - 1) {
-                sb.append(",");
+                structure.append(", ");
+                values.append(", ");
             }
         }
 
+        sb.append(structure.toString());
+        sb.append(") VALUES (");
+        sb.append(values.toString());
         sb.append(")");
 
         return sb.toString();
@@ -186,12 +193,17 @@ public class AbstractDAO<T> {
         return sendQuery(query, values);
     }
 
-    private List<Object> getFieldValues(T t) throws IllegalAccessException {
+    private List<Object> getFieldValues(T t, StatementTypes sqlType) throws IllegalAccessException {
         List<Object> fieldValues = new LinkedList<>();
         for (Field field : type.getDeclaredFields()) {
             if (field.getName().startsWith("x_")) {
                 continue;
             }
+
+            if (sqlType == StatementTypes.INSERT && field.getName().equals("id")) {
+                continue;
+            }
+
             field.setAccessible(true);
             Object value = field.get(t);
             fieldValues.add(value);
@@ -202,7 +214,7 @@ public class AbstractDAO<T> {
     public Boolean insert(T t) {
         List<Object> values = null;
         try {
-            values = getFieldValues(t);
+            values = getFieldValues(t, StatementTypes.INSERT);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -213,7 +225,7 @@ public class AbstractDAO<T> {
     public Boolean update(T t) {
         List<Object> referenceValues = null;
         try {
-            referenceValues = getFieldValues(t);
+            referenceValues = getFieldValues(t, StatementTypes.UPDATE);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

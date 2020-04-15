@@ -7,9 +7,6 @@ import java.util.Objects;
 
 public class Invoice {
     private Integer id;
-    //    private Order x_order;
-//    private Product x_product;
-//    private Integer product_id;
     private Product product;
     private Order _order;
     private String series;
@@ -66,12 +63,6 @@ public class Invoice {
     public void set_order(Order order) {
         this._order = order;
     }
-
-//    public void setProduct_id(Integer product_id) {
-//        this.product_id = product_id;
-//        ProductBLL productBLL = new ProductBLL();
-//        this.product = productBLL.findById(product_id);
-//    }
 
     public String getSeries() {
         return series;

@@ -7,9 +7,18 @@ public class Constants {
     private static final String DB_USER = "root";
     private static final String DB_PASS = "secret";
     private static final String DB_CONNECTION_SETTINGS = "?useSSL=false&serverTimezone=UTC";
+    private static String INPUT_FILE = "commands.txt";
 
     private Constants() {
 
+    }
+
+    public static String getInputFile() {
+        return INPUT_FILE;
+    }
+
+    public static void setInputFile(String inputFile) {
+        INPUT_FILE = inputFile;
     }
 
     public static String getTablePrefix() {
