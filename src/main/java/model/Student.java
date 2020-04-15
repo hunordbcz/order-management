@@ -1,18 +1,31 @@
 package model;
 
+import java.util.List;
+
 /**
  * @Author: Technical University of Cluj-Napoca, Romania Distributed Systems
- *          Research Laboratory, http://dsrl.coned.utcluj.ro/
+ * Research Laboratory, http://dsrl.coned.utcluj.ro/
  * @Since: Apr 03, 2017
  */
 public class Student {
-	private int id;
+	public int id;
 	private String name;
 	private String address;
 	private String email;
+	private List<String> x_products;
 	private int age;
+	private int test;
 
 	public Student() {
+
+	}
+
+	public int getTest() {
+		return test;
+	}
+
+	public void setTest(int test) {
+		this.test = test;
 	}
 
 	public Student(int id, String name, String address, String email, int age) {
@@ -74,8 +87,6 @@ public class Student {
 
 	@Override
 	public String toString() {
-		return "Student [id=" + id + ", name=" + name + ", address=" + address + ", email=" + email + ", age=" + age
-				+ "]";
+		return "id = '" + id + "', name='" + name + "', address='" + address + "', email='" + email + "', age='" + age + "', test='" + test + "'";
 	}
-
 }
