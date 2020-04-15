@@ -1,6 +1,8 @@
 package dao;
 
+import bll.InvoiceBLL;
 import connection.ConnectionFactory;
+import model.Order;
 import model.Pair;
 import util.Constants;
 
@@ -158,7 +160,7 @@ public class AbstractDAO<T> {
         return null;
     }
 
-    private List<T> select(List<Pair<String, Object>> rules) {
+    List<T> select(List<Pair<String, Object>> rules) {
         List<String> fields = new LinkedList<>();
         List<Object> values = new LinkedList<>();
 
@@ -237,15 +239,23 @@ public class AbstractDAO<T> {
                 for (String fieldName : fieldNames) {
                     Object value = resultSet.getObject(fieldName);
                     PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, type);
-                    Method method = propertyDescriptor.getWriteMethod();
+//                    Method method = propertyDescriptor.getWriteMethod();
+                    Method method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
                     method.invoke(instance, value);
                 }
+
+                if (instance instanceof Order) {
+                    InvoiceBLL inv = new InvoiceBLL();
+                    ((Order) instance).setX_invoices(inv.findByOrder((Order) instance));
+                }
+
                 list.add(instance);
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IntrospectionException e) {
             e.printStackTrace();
-        } catch (IllegalArgumentException | InvocationTargetException | SQLException e) {
+        } catch (IllegalArgumentException | InvocationTargetException | SQLException | NoSuchMethodException e) {
             e.printStackTrace();
+            System.out.format("Invocation of - failed because of: %s%n", e.getCause().getMessage());
         }
         return list;
     }

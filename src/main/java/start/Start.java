@@ -1,6 +1,8 @@
 package start;
 
+import bll.OrderBLL;
 import bll.StudentBLL;
+import model.Order;
 import model.Student;
 
 import java.sql.SQLException;
@@ -19,15 +21,18 @@ public class Start {
 	public static void main(String[] args) throws SQLException {
 
 		StudentBLL studentBll = new StudentBLL();
+		OrderBLL orderBLL = new OrderBLL();
 
 		Student student1 = null;
 		List<Student> studentList = null;
 		try {
-			student1 = studentBll.findById(1245);
+			Order order = orderBLL.findById(1);
+			System.out.println("x");
+//			student1 = studentBll.findById(1245);
 //			student1.setId(1);
 //			studentBll.insert(student1);
-			student1.setId(20);
-			studentBll.update(student1);
+//			student1.setId(20);
+//			studentBll.update(student1);
 		} catch (Exception ex) {
 			LOGGER.log(Level.INFO, ex.getMessage());
 		}

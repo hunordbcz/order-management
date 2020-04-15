@@ -1,28 +1,21 @@
 package model;
 
+import bll.OrderBLL;
+import bll.ProductBLL;
+
 public class Invoice {
     private Integer id;
-    private Integer product_id;
+    //    private Order x_order;
+//    private Product x_product;
+//    private Integer product_id;
+    private Product product;
+    private Order _order;
     private String series;
     private Integer nr;
     private Integer product_quantity;
 
-    public Invoice(Integer product_id, String series, Integer nr, Integer product_quantity) {
-        this.product_id = product_id;
-        this.series = series;
-        this.nr = nr;
-        this.product_quantity = product_quantity;
-    }
+    public Invoice() {
 
-    @Override
-    public String toString() {
-        return "Invoice{" +
-                "id=" + id +
-                ", product_id=" + product_id +
-                ", series='" + series + '\'' +
-                ", nr=" + nr +
-                ", product_quantity=" + product_quantity +
-                '}';
     }
 
     public Integer getId() {
@@ -33,13 +26,33 @@ public class Invoice {
         this.id = id;
     }
 
-    public Integer getProduct_id() {
-        return product_id;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProduct_id(Integer product_id) {
-        this.product_id = product_id;
+    public void setProduct(Integer product) {
+        ProductBLL productBLL = new ProductBLL();
+        this.product = productBLL.findById(product);
     }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public Order get_order() {
+        return _order;
+    }
+
+    public void set_order(Integer order) {
+        OrderBLL orderBLL = new OrderBLL();
+        this._order = orderBLL.findById(order);
+    }
+
+//    public void setProduct_id(Integer product_id) {
+//        this.product_id = product_id;
+//        ProductBLL productBLL = new ProductBLL();
+//        this.product = productBLL.findById(product_id);
+//    }
 
     public String getSeries() {
         return series;

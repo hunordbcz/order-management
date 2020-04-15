@@ -6,20 +6,8 @@ public class Product {
     private Double quantity;
     private Double price;
 
-    public Product(String name, Double quantity, Double price) {
-        this.name = name;
-        this.quantity = quantity;
-        this.price = price;
-    }
+    public Product() {
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "ID=" + id +
-                ", name='" + name + '\'' +
-                ", quantity=" + quantity +
-                ", price=" + price +
-                '}';
     }
 
     public Integer getId() {
