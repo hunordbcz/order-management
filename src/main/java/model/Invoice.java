@@ -6,15 +6,19 @@ import bll.ProductBLL;
 import java.util.Objects;
 
 public class Invoice {
-    private Integer id;
-    private Product product;
-    private Order _order;
-    private String series;
-    private Integer nr;
-    private Integer product_quantity;
+    public Integer id;
+    public Product product;
+    public Order _order;
+    public Double product_quantity;
 
     public Invoice() {
 
+    }
+
+    public Invoice(Order order, Product product, Double quantity) {
+        this._order = order;
+        this.product = product;
+        this.product_quantity = quantity;
     }
 
     @Override
@@ -38,8 +42,12 @@ public class Invoice {
         this.id = id;
     }
 
-    public Product getProduct() {
-        return product;
+//    public Product getProduct() {
+//        return product;
+//    }
+
+    public Integer getProduct() {
+        return product.getId();
     }
 
     public void setProduct(Integer product) {
@@ -51,8 +59,8 @@ public class Invoice {
         this.product = product;
     }
 
-    public Order get_order() {
-        return _order;
+    public Integer get_order() {
+        return _order.getId();
     }
 
     public void set_order(Integer order) {
@@ -64,27 +72,11 @@ public class Invoice {
         this._order = order;
     }
 
-    public String getSeries() {
-        return series;
-    }
-
-    public void setSeries(String series) {
-        this.series = series;
-    }
-
-    public Integer getNr() {
-        return nr;
-    }
-
-    public void setNr(Integer nr) {
-        this.nr = nr;
-    }
-
-    public Integer getProduct_quantity() {
+    public Double getProduct_quantity() {
         return product_quantity;
     }
 
-    public void setProduct_quantity(Integer product_quantity) {
+    public void setProduct_quantity(Double product_quantity) {
         this.product_quantity = product_quantity;
     }
 }

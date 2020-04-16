@@ -1,10 +1,10 @@
 package model;
 
 public class Product {
-    private Integer id;
-    private String name;
-    private Double quantity;
-    private Double price;
+    public Integer id;
+    public String name;
+    public Double quantity;
+    public Double price;
 
     public Product() {
 

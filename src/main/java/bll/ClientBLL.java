@@ -40,4 +40,12 @@ public class ClientBLL {
         }
         return st;
     }
+
+    public Client findByName(String name) {
+        Client st = clientDAO.findByName(name);
+        if (st == null) {
+            throw new NoSuchElementException("The product with id =" + name + " was not found!");
+        }
+        return st;
+    }
 }

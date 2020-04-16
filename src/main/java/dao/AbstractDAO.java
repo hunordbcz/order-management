@@ -6,6 +6,7 @@ import model.Invoice;
 import model.Order;
 import model.Pair;
 import util.Constants;
+import util.OrderTypes;
 import util.StatementTypes;
 
 import java.beans.IntrospectionException;
@@ -23,6 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static util.OrderTypes.ASC;
+import static util.OrderTypes.DESC;
 
 
 public class AbstractDAO<T> {
@@ -123,6 +127,10 @@ public class AbstractDAO<T> {
         return sb;
     }
 
+    private String createDescSelectQuery(List<String> reference) {
+        return this.createSelectQuery(reference) + " ORDER BY id DESC";
+    }
+
     private Integer sendUpdate(String query, List<Object> values) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -177,7 +185,7 @@ public class AbstractDAO<T> {
         return null;
     }
 
-    List<T> select(List<Pair<String, Object>> rules) {
+    List<T> select(List<Pair<String, Object>> rules, OrderTypes order) {
         List<String> fields = new LinkedList<>();
         List<Object> values = new LinkedList<>();
 
@@ -188,7 +196,13 @@ public class AbstractDAO<T> {
             }
         }
 
-        String query = createSelectQuery(fields);
+        String query = null;
+
+        if (order == DESC) {
+            query = createDescSelectQuery(fields);
+        } else {
+            query = createSelectQuery(fields);
+        }
 
         return sendQuery(query, values);
     }
@@ -204,9 +218,15 @@ public class AbstractDAO<T> {
                 continue;
             }
 
-            field.setAccessible(true);
-            Object value = field.get(t);
-            fieldValues.add(value);
+            PropertyDescriptor propertyDescriptor = null;
+            try {
+                propertyDescriptor = new PropertyDescriptor(field.getName(), type);
+                Method method = propertyDescriptor.getReadMethod();
+                Object value = method.invoke(t);
+                fieldValues.add(value);
+            } catch (IntrospectionException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
         return fieldValues;
     }
@@ -261,15 +281,19 @@ public class AbstractDAO<T> {
         return sendUpdate(query, values) != 0;
     }
 
+    public T findLast() {
+        return this.select(null, DESC).get(0);
+    }
+
     public List<T> findAll() {
-        return this.select(null);
+        return this.select(null, ASC);
     }
 
     public T findById(int id) {
         List<Pair<String, Object>> rules = new LinkedList<>();
         rules.add(new Pair<>("id", id));
 
-        List<T> response = select(rules);
+        List<T> response = select(rules, ASC);
         if (response != null && !response.isEmpty()) {
             return response.get(0);
         }
@@ -278,7 +302,7 @@ public class AbstractDAO<T> {
 
     private List<T> createObjects(ResultSet resultSet) {
         List<T> list = new ArrayList<T>();
-
+        Method method = null;
         try {
             while (resultSet.next()) {
                 T instance = type.newInstance();
@@ -286,14 +310,12 @@ public class AbstractDAO<T> {
 
                     Object value = resultSet.getObject(fieldName);
                     PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, type);
-                    Method method;
+
 
                     if (fieldName.equals("_order") && previous != null) {
-                        method = propertyDescriptor.getWriteMethod();
                         value = previous;
-                    } else {
-                        method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
                     }
+                    method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
 
                     method.invoke(instance, value);
 
@@ -312,7 +334,15 @@ public class AbstractDAO<T> {
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IntrospectionException e) {
             e.printStackTrace();
-        } catch (IllegalArgumentException | InvocationTargetException | SQLException | NoSuchMethodException e) {
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            System.out.println(method.getName());
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            System.out.println(method.getName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         return list;

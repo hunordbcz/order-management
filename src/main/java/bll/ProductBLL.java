@@ -46,4 +46,16 @@ public class ProductBLL {
         }
         return st;
     }
+
+    public Product findByName(String name) {
+        Product st = productDAO.findByName(name);
+        if (st == null) {
+            throw new NoSuchElementException("The product with id =" + name + " was not found!");
+        }
+        return st;
+    }
+
+    public Boolean update(Product product) {
+        return productDAO.update(product);
+    }
 }

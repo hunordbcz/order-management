@@ -3,6 +3,9 @@ package presentation;
 import bll.ClientBLL;
 import bll.OrderBLL;
 import bll.ProductBLL;
+import exceptions.OutOfStock;
+import model.Client;
+import model.Product;
 import util.Constants;
 import util.FileManager;
 
@@ -48,13 +51,9 @@ public class Controller {
 
     public void delete(String model, String[] arguments) {
         ClientBLL clientBll = new ClientBLL();
-        OrderBLL orderBLL = new OrderBLL();
         ProductBLL productBLL = new ProductBLL();
 
-        String name, address;
-        double quantity, price;
-
-        name = arguments[0];
+        String name = arguments[0];
         switch (model) {
             case "client":
                 clientBll.delete(name);
@@ -68,6 +67,20 @@ public class Controller {
     }
 
     public void order(String[] arguments) {
+        ClientBLL clientBLL = new ClientBLL();
+        ProductBLL productBLL = new ProductBLL();
+        OrderBLL orderBLL = new OrderBLL();
+
+        Client client = clientBLL.findByName(arguments[0]);
+        Product product = productBLL.findByName(arguments[1]);
+        double quantity = Double.parseDouble(arguments[2]);
+
+        try {
+            orderBLL.make(client, product, quantity);
+        } catch (OutOfStock outOfStock) {
+            outOfStock.printStackTrace();
+        }
+
 
     }
 
@@ -86,7 +99,7 @@ public class Controller {
             String[] statement = line.split(":");
             String[] arguments = null;
             if (statement.length > 1) {
-                arguments = statement[1].replace(" ", "").split(",");
+                arguments = statement[1].split(",");
             }
             statement = statement[0].split(" ");
             String command = statement[0].toLowerCase();

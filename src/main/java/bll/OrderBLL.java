@@ -1,8 +1,11 @@
 package bll;
 
 import dao.OrderDAO;
+import exceptions.OutOfStock;
+import model.Client;
 import model.Invoice;
 import model.Order;
+import model.Product;
 
 import java.util.NoSuchElementException;
 
@@ -11,6 +14,21 @@ public class OrderBLL {
 
     public OrderBLL() {
         orderDAO = new OrderDAO();
+    }
+
+    public Boolean make(Client client, Product product, Double quantity) throws OutOfStock {
+        if (!orderDAO.make(client, product, quantity)) {
+            throw new OutOfStock();
+        }
+        return true;
+    }
+
+    public Order getLast() {
+        Order st = orderDAO.findLast();
+        if (st == null) {
+            throw new NoSuchElementException("The student with id =" + "last" + " was not found!");
+        }
+        return st;
     }
 
     public Boolean insert(Order order) {
