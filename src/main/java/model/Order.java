@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Order {
-    public Integer id;
-    public Client client;
-    public List<Invoice> x_invoices;
+    private Integer id;
+    private Client client;
+    private List<Invoice> x_invoices;
 
     public Order() {
         x_invoices = new LinkedList<>();
@@ -24,6 +24,10 @@ public class Order {
 
     public Integer getClient() {
         return client.getId();
+    }
+
+    public Client getClientObj() {
+        return client;
     }
 
     public void setClient(Integer client) {

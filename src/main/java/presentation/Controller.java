@@ -5,11 +5,16 @@ import bll.OrderBLL;
 import bll.ProductBLL;
 import exceptions.OutOfStock;
 import model.Client;
+import model.Invoice;
+import model.Order;
 import model.Product;
 import util.Constants;
 import util.FileManager;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
 public class Controller {
 
@@ -17,12 +22,12 @@ public class Controller {
 
     }
 
-    public static String capitalize(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
-        }
-
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    public static void outOfStock() {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        View<Order> pdf = new View<>();
+        pdf.addMessage("Product is under-stock, can't be bought");
+        pdf.print("unable-to-bill" + ts + ".pdf");
     }
 
     public void insert(String model, String[] arguments) {
@@ -84,8 +89,73 @@ public class Controller {
 
     }
 
-    public void report(String model) {
+    public static void printOrder(Order order) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        View<Order> pdf = new View<>();
 
+        String[] names = new String[]{"Name", "Product", "Quantity", "Price", "Total"};
+        String[] fields = new String[Constants.getOrderReportSize()];
+
+        Invoice invoice = order.getX_invoices().get(0);
+        Product product = invoice.getProductObj();
+        Client client = order.getClientObj();
+
+        fields[0] = client.getName();
+        fields[1] = product.getName();
+        fields[2] = Double.toString(invoice.getProduct_quantity());
+        fields[3] = product.getPrice().toString();
+        fields[4] = Double.toString(product.getPrice() * invoice.getProduct_quantity());
+
+        pdf.addTableHeader(names);
+        pdf.addRows(fields);
+        pdf.print("invoice-" + ts + ".pdf");
+    }
+
+    private void reportClient() {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+
+        View<Client> pdf = new View<>();
+        ClientBLL clientBLL = new ClientBLL();
+        List<Client> clients = clientBLL.findAll();
+
+        pdf.addTableHeader(clients.get(0));
+        pdf.addRows(clients);
+        pdf.print("report-client" + ts + ".pdf");
+    }
+
+    private void reportProduct() {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+
+        View<Product> pdf = new View<>();
+        ProductBLL productBLL = new ProductBLL();
+        List<Product> products = productBLL.findAll();
+
+        pdf.addTableHeader(products.get(0));
+        pdf.addRows(products);
+        pdf.print("report-product" + ts + ".pdf");
+    }
+
+    private void reportOrder() {
+
+    }
+
+    public void report(String model) {
+        switch (model) {
+            case "client":
+                reportClient();
+                break;
+            case "product":
+                reportProduct();
+                break;
+            case "order":
+                reportOrder();
+                break;
+            default:
+                break;
+        }
     }
 
     public void parseFile(String input) throws IOException {
@@ -118,8 +188,6 @@ public class Controller {
                 default:
                     break;
             }
-
-
         }
     }
 }

@@ -6,10 +6,10 @@ import bll.ProductBLL;
 import java.util.Objects;
 
 public class Invoice {
-    public Integer id;
-    public Product product;
-    public Order _order;
-    public Double product_quantity;
+    private Integer id;
+    private Product product;
+    private Order _order;
+    private Double product_quantity;
 
     public Invoice() {
 
@@ -42,9 +42,9 @@ public class Invoice {
         this.id = id;
     }
 
-//    public Product getProduct() {
-//        return product;
-//    }
+    public Product getProductObj() {
+        return product;
+    }
 
     public Integer getProduct() {
         return product.getId();
@@ -61,6 +61,10 @@ public class Invoice {
 
     public Integer get_order() {
         return _order.getId();
+    }
+
+    public Order get_orderObj() {
+        return _order;
     }
 
     public void set_order(Integer order) {

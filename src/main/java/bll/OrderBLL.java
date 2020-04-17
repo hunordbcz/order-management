@@ -6,6 +6,7 @@ import model.Client;
 import model.Invoice;
 import model.Order;
 import model.Product;
+import presentation.Controller;
 
 import java.util.NoSuchElementException;
 
@@ -18,8 +19,9 @@ public class OrderBLL {
 
     public Boolean make(Client client, Product product, Double quantity) throws OutOfStock {
         if (!orderDAO.make(client, product, quantity)) {
-            throw new OutOfStock();
+            Controller.outOfStock();
         }
+        Controller.printOrder(client, product, quantity);
         return true;
     }
 

@@ -1,9 +1,9 @@
 package model;
 
 public class Client {
-    public Integer id;
-    public String name;
-    public String address;
+    private Integer id;
+    private String name;
+    private String address;
 
     public Client() {
 

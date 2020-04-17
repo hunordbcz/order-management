@@ -7,6 +7,7 @@ public class Constants {
     private static final String DB_USER = "root";
     private static final String DB_PASS = "secret";
     private static final String DB_CONNECTION_SETTINGS = "?useSSL=false&serverTimezone=UTC";
+    private static final int ORDER_REPORT_SIZE = 5;
     private static String INPUT_FILE = "commands.txt";
 
     private Constants() {
@@ -39,5 +40,9 @@ public class Constants {
 
     public static String getDbConnectionSettings() {
         return DB_CONNECTION_SETTINGS;
+    }
+
+    public static int getOrderReportSize() {
+        return ORDER_REPORT_SIZE;
     }
 }

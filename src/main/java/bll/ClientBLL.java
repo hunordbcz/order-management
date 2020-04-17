@@ -3,6 +3,7 @@ package bll;
 import dao.ClientDAO;
 import model.Client;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class ClientBLL {
@@ -45,6 +46,14 @@ public class ClientBLL {
         Client st = clientDAO.findByName(name);
         if (st == null) {
             throw new NoSuchElementException("The product with id =" + name + " was not found!");
+        }
+        return st;
+    }
+
+    public List<Client> findAll() {
+        List<Client> st = clientDAO.findAll();
+        if (st == null) {
+            throw new NoSuchElementException("The product with id =" + "all" + " was not found!");
         }
         return st;
     }
