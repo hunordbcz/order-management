@@ -9,7 +9,11 @@ public class Start {
 
 		Controller controller = new Controller();
 		try {
-			controller.parseFile(args[0]);
+			if (args.length > 0) {
+				controller.parseFile(args[0]);
+			} else {
+				controller.parseFile(null);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
