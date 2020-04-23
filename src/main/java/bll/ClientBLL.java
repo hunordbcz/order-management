@@ -37,7 +37,7 @@ public class ClientBLL {
     public Client findById(int id) {
         Client st = clientDAO.findById(id);
         if (st == null) {
-            throw new NoSuchElementException("The product with id =" + id + " was not found!");
+            throw new NoSuchElementException("The client with id =" + id + " was not found!");
         }
         return st;
     }
@@ -45,7 +45,7 @@ public class ClientBLL {
     public Client findByName(String name) {
         Client st = clientDAO.findByName(name);
         if (st == null) {
-            throw new NoSuchElementException("The product with id =" + name + " was not found!");
+            throw new NoSuchElementException("The client with id =" + name + " was not found!");
         }
         return st;
     }
@@ -53,7 +53,7 @@ public class ClientBLL {
     public List<Client> findAll() {
         List<Client> st = clientDAO.findAll();
         if (st == null) {
-            throw new NoSuchElementException("The product with id =" + "all" + " was not found!");
+            throw new NoSuchElementException("No client was not found!");
         }
         return st;
     }

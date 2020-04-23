@@ -8,6 +8,7 @@ import model.Order;
 import model.Product;
 import presentation.Controller;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class OrderBLL {
@@ -21,14 +22,15 @@ public class OrderBLL {
         if (!orderDAO.make(client, product, quantity)) {
             Controller.outOfStock();
         }
-        Controller.printOrder(client, product, quantity);
+
+        Controller.printOrder(this.getLast());
         return true;
     }
 
     public Order getLast() {
         Order st = orderDAO.findLast();
         if (st == null) {
-            throw new NoSuchElementException("The student with id =" + "last" + " was not found!");
+            throw new NoSuchElementException("No order was found");
         }
         return st;
     }
@@ -42,10 +44,9 @@ public class OrderBLL {
     }
 
     public Order findById(int id) {
-
         Order st = orderDAO.findById(id);
         if (st == null) {
-            throw new NoSuchElementException("The student with id =" + id + " was not found!");
+            throw new NoSuchElementException("The order with id =" + id + " was not found!");
         }
         return st;
     }
@@ -53,7 +54,15 @@ public class OrderBLL {
     public Order findById(int id, Invoice invoice) {
         Order st = orderDAO.findById(id, invoice);
         if (st == null) {
-            throw new NoSuchElementException("The student with id =" + id + " was not found!");
+            throw new NoSuchElementException("The order with id =" + id + " was not found!");
+        }
+        return st;
+    }
+
+    public List<Order> findAll() {
+        List<Order> st = orderDAO.findAll();
+        if (st == null) {
+            throw new NoSuchElementException("No orders were found!");
         }
         return st;
     }

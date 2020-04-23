@@ -25,7 +25,7 @@ public class InvoiceBLL {
     public Invoice findById(int id) {
         Invoice st = invoiceDAO.findById(id);
         if (st == null) {
-            throw new NoSuchElementException("The product with id =" + id + " was not found!");
+            throw new NoSuchElementException("The invoice with id =" + id + " was not found!");
         }
         return st;
     }
@@ -33,7 +33,7 @@ public class InvoiceBLL {
     public List<Invoice> findByOrder(Order order) {
         List<Invoice> result = invoiceDAO.findByOrder(order);
         if (result == null) {
-            throw new NoSuchElementException("Invoice with order = " + order.getId() + " doesn't exist!");
+            throw new NoSuchElementException("Invoices with order = " + order.getId() + " were not found!");
         }
         return result;
     }

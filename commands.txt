@@ -1,5 +1,3 @@
-Report client
-
 Insert client: Ion Popescu, Bucuresti
 Insert client: Luca George, Bucuresti
 Report client

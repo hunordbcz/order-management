@@ -5,8 +5,8 @@ import connection.ConnectionFactory;
 import model.Invoice;
 import model.Order;
 import model.Pair;
-import util.Constants;
 import util.OrderTypes;
+import util.SQL;
 import util.StatementTypes;
 
 import java.beans.IntrospectionException;
@@ -28,12 +28,12 @@ import java.util.logging.Logger;
 import static util.OrderTypes.ASC;
 import static util.OrderTypes.DESC;
 
-
 public class AbstractDAO<T> {
     protected static final Logger LOGGER = Logger.getLogger(AbstractDAO.class.getName());
 
     private final List<String> fieldNames;
     private final Class<T> type;
+    private final SQL<T> queries;
     protected Object previous;
 
     @SuppressWarnings("unchecked")
@@ -41,6 +41,7 @@ public class AbstractDAO<T> {
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         this.fieldNames = getDeclaredFields();
         this.previous = null;
+        this.queries = new SQL<>(type, fieldNames);
     }
 
     private List<String> getDeclaredFields() {
@@ -53,82 +54,6 @@ public class AbstractDAO<T> {
         }
 
         return fields;
-    }
-
-    private String getWHERE(List<String> fields) {
-        if (fields == null || fields.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder(" WHERE ");
-        fields.stream()
-                .limit(fields.size() - 1)
-                .forEach(field -> sb.append(field).append(" = ? AND"));
-        sb.append(fields.get(fields.size() - 1)).append(" = ?");
-
-        return sb.toString();
-    }
-
-    private String createSelectQuery(List<String> reference) {
-        return "SELECT * FROM " + Constants.getTablePrefix() +
-                type.getSimpleName() +
-                this.getWHERE(reference);
-    }
-
-    private String createInsertQuery(T t) {
-        StringBuilder sb = new StringBuilder();
-        StringBuilder structure = new StringBuilder();
-        StringBuilder values = new StringBuilder();
-
-        sb.append("INSERT INTO ");
-        sb.append(Constants.getTablePrefix()).append(type.getSimpleName());
-        sb.append(" (");
-
-        for (int i = 0; i < this.fieldNames.size(); i++) {
-            if (this.fieldNames.get(i).equals("id")) {
-                continue;
-            }
-            structure.append(this.fieldNames.get(i));
-            values.append("?");
-            if (i != this.fieldNames.size() - 1) {
-                structure.append(", ");
-                values.append(", ");
-            }
-        }
-
-        sb.append(structure.toString());
-        sb.append(") VALUES (");
-        sb.append(values.toString());
-        sb.append(")");
-
-        return sb.toString();
-    }
-
-    private String createUpdateQuery(T obj, List<String> reference) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("UPDATE ");
-        sb.append(Constants.getTablePrefix()).append(type.getSimpleName() + " ");
-        sb.append(" SET ");
-        for (int i = 0; i < this.fieldNames.size(); i++) {
-            sb.append(fieldNames.get(i)).append(" = ?");
-            if (i != this.fieldNames.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append(this.getWHERE(reference));
-
-        return sb.toString();
-    }
-
-    private String createDeleteQuery(List<String> reference) {
-        String sb = "DELETE FROM " +
-                Constants.getTablePrefix() + type.getSimpleName() +
-                this.getWHERE(reference);
-        return sb;
-    }
-
-    private String createDescSelectQuery(List<String> reference) {
-        return this.createSelectQuery(reference) + " ORDER BY id DESC";
     }
 
     private Integer sendUpdate(String query, List<Object> values) {
@@ -199,9 +124,9 @@ public class AbstractDAO<T> {
         String query = null;
 
         if (order == DESC) {
-            query = createDescSelectQuery(fields);
+            query = queries.createDescSelectQuery(fields);
         } else {
-            query = createSelectQuery(fields);
+            query = queries.createSelectQuery(fields);
         }
 
         return sendQuery(query, values);
@@ -238,7 +163,7 @@ public class AbstractDAO<T> {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        String query = createInsertQuery(t);
+        String query = queries.createInsertQuery(t);
         return sendUpdate(query, values) != 0;
     }
 
@@ -258,7 +183,7 @@ public class AbstractDAO<T> {
         referenceValues.add(referenceValues.get(1));
 
 
-        String query = createUpdateQuery(t, referenceNames);
+        String query = queries.createUpdateQuery(t, referenceNames);
         return sendUpdate(query, referenceValues) != 0;
     }
 
@@ -268,7 +193,6 @@ public class AbstractDAO<T> {
 
         if (rules == null) {
             return false;
-            //todo throw exception no reference given
         }
 
         for (Pair<String, Object> rule : rules) {
@@ -276,7 +200,7 @@ public class AbstractDAO<T> {
             values.add(rule.second);
         }
 
-        String query = createDeleteQuery(fields);
+        String query = queries.createDeleteQuery(fields);
 
         return sendUpdate(query, values) != 0;
     }
@@ -307,20 +231,15 @@ public class AbstractDAO<T> {
             while (resultSet.next()) {
                 T instance = type.newInstance();
                 for (String fieldName : fieldNames) {
-
                     Object value = resultSet.getObject(fieldName);
                     PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, type);
-
 
                     if (fieldName.equals("_order") && previous != null) {
                         value = previous;
                     }
                     method = type.getMethod(propertyDescriptor.getWriteMethod().getName(), value.getClass());
-
                     method.invoke(instance, value);
-
                 }
-
                 if (instance instanceof Order) {
                     InvoiceBLL inv = new InvoiceBLL();
                     if (previous != null) {
@@ -329,20 +248,9 @@ public class AbstractDAO<T> {
                     }
                     ((Order) instance).addX_Invoices(inv.findByOrder((Order) instance));
                 }
-
                 list.add(instance);
             }
-        } catch (InstantiationException | IllegalAccessException | SecurityException | IntrospectionException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            System.out.println(method.getName());
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            System.out.println(method.getName());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;

@@ -70,8 +70,6 @@ public class View<T> {
     }
 
     public void addRows(String[] fields) {
-        table = new PdfPTable(fields.length);
-
         for (String field : fields) {
             table.addCell(field);
         }
