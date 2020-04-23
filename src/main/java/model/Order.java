@@ -43,6 +43,12 @@ public class Order {
         return x_invoices;
     }
 
+    /**
+     * Check if current order contain's the invoice or not
+     *
+     * @param invoice The given invoice
+     * @return True if contains | False if doesn't contain
+     */
     private Boolean containsInvoice(Invoice invoice) {
         for (Invoice inv : x_invoices) {
             if (inv.equals(invoice)) {
@@ -52,6 +58,11 @@ public class Order {
         return false;
     }
 
+    /**
+     * Add invoices the the current object's list's invoices if they are not inside already
+     *
+     * @param x_invoices List of Invoices
+     */
     public void addX_Invoices(List<Invoice> x_invoices) {
         for (Invoice invoice : x_invoices) {
             if (!containsInvoice(invoice)) {

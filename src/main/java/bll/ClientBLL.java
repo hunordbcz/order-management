@@ -13,27 +13,44 @@ public class ClientBLL {
         clientDAO = new ClientDAO();
     }
 
+    /**
+     * Insert Client into DB by Name and Address
+     *
+     * @param name    Given name
+     * @param address Given address
+     * @return True on success | False on failure
+     */
     public Boolean insert(String name, String address) {
         Client client = new Client(name, address);
         return this.insert(client);
     }
 
+    /**
+     * Insert Client into DB by object
+     *
+     * @param client Given client object
+     * @return True on success | False on failure
+     */
     public Boolean insert(Client client) {
-        if (!clientDAO.insert(client)) {
-            //todo throw new Couldn't insert.
-            return false;
-        }
-        return true;
+        return clientDAO.insert(client);
     }
 
+    /**
+     * Delete Client from DB by name
+     *
+     * @param name Given name
+     * @return True on success | False on failure
+     */
     public Boolean delete(String name) {
-        if (!clientDAO.deleteByName(name)) {
-            //todo throw new Couldn't insert.
-            return false;
-        }
-        return true;
+        return clientDAO.deleteByName(name);
     }
 
+    /**
+     * Find Client from DB by ID
+     *
+     * @param id Given ID
+     * @return Client
+     */
     public Client findById(int id) {
         Client st = clientDAO.findById(id);
         if (st == null) {
@@ -42,6 +59,12 @@ public class ClientBLL {
         return st;
     }
 
+    /**
+     * Find Client from DB by Name
+     *
+     * @param name Given name
+     * @return Client
+     */
     public Client findByName(String name) {
         Client st = clientDAO.findByName(name);
         if (st == null) {
@@ -50,6 +73,11 @@ public class ClientBLL {
         return st;
     }
 
+    /**
+     * Get every Client from DB
+     *
+     * @return List of Clients
+     */
     public List<Client> findAll() {
         List<Client> st = clientDAO.findAll();
         if (st == null) {

@@ -14,14 +14,22 @@ public class InvoiceBLL {
         invoiceDAO = new InvoiceDAO();
     }
 
+    /**
+     * Insert Invoice into DB by object
+     *
+     * @param invoice Given Invoice object
+     * @return True on success | False on failure
+     */
     public Boolean insert(Invoice invoice) {
-        if (!invoiceDAO.insert(invoice)) {
-            //todo throw new Couldn't insert.
-            return false;
-        }
-        return true;
+        return invoiceDAO.insert(invoice);
     }
 
+    /**
+     * Find Invoice from DB by ID
+     *
+     * @param id Given id
+     * @return Invoice
+     */
     public Invoice findById(int id) {
         Invoice st = invoiceDAO.findById(id);
         if (st == null) {
@@ -30,6 +38,12 @@ public class InvoiceBLL {
         return st;
     }
 
+    /**
+     * Get Invoices of a given Order
+     *
+     * @param order Given order
+     * @return List of Invoices
+     */
     public List<Invoice> findByOrder(Order order) {
         List<Invoice> result = invoiceDAO.findByOrder(order);
         if (result == null) {

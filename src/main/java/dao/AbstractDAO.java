@@ -28,6 +28,11 @@ import java.util.logging.Logger;
 import static util.OrderTypes.ASC;
 import static util.OrderTypes.DESC;
 
+/**
+ * Used to make the connection between the DB and Application
+ *
+ * @param <T> Defines the current type
+ */
 public class AbstractDAO<T> {
     protected static final Logger LOGGER = Logger.getLogger(AbstractDAO.class.getName());
 
@@ -44,6 +49,11 @@ public class AbstractDAO<T> {
         this.queries = new SQL<>(type, fieldNames);
     }
 
+    /**
+     * Get the fields names for the current type
+     *
+     * @return List of Strings that contains the names
+     */
     private List<String> getDeclaredFields() {
         List<String> fields = new LinkedList<>();
         for (Field field : type.getDeclaredFields()) {
@@ -56,6 +66,44 @@ public class AbstractDAO<T> {
         return fields;
     }
 
+    /**
+     * Get the field values for a given object
+     *
+     * @param t       The object
+     * @param sqlType The type of query that will be ran afterwards
+     * @return List of Objects that contain the values of the fields
+     */
+    private List<Object> getFieldValues(T t, StatementTypes sqlType) throws IllegalAccessException {
+        List<Object> fieldValues = new LinkedList<>();
+        for (Field field : type.getDeclaredFields()) {
+            if (field.getName().startsWith("x_")) {
+                continue;
+            }
+
+            if (sqlType == StatementTypes.INSERT && field.getName().equals("id")) {
+                continue;
+            }
+
+            PropertyDescriptor propertyDescriptor = null;
+            try {
+                propertyDescriptor = new PropertyDescriptor(field.getName(), type);
+                Method method = propertyDescriptor.getReadMethod();
+                Object value = method.invoke(t);
+                fieldValues.add(value);
+            } catch (IntrospectionException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return fieldValues;
+    }
+
+    /**
+     * Sends an update query to the DB
+     *
+     * @param query  The query that is executed
+     * @param values The values that are added to the query
+     * @return The number of rows changed / added
+     */
     private Integer sendUpdate(String query, List<Object> values) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -82,6 +130,13 @@ public class AbstractDAO<T> {
         return 0;
     }
 
+    /**
+     * Send simple query to the DB
+     *
+     * @param query  The query that is executed
+     * @param values The values that are added to the query
+     * @return List of parsed objects from the result of the query
+     */
     private List<T> sendQuery(String query, List<Object> values) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -110,7 +165,14 @@ public class AbstractDAO<T> {
         return null;
     }
 
-    List<T> select(List<Pair<String, Object>> rules, OrderTypes order) {
+    /**
+     * Makes a select query and executes it
+     *
+     * @param rules List of Pairs of String and Object, that is used to filter the data
+     * @param order Ascending or Descending
+     * @return List of parsed objects from the result of the query
+     */
+    public List<T> select(List<Pair<String, Object>> rules, OrderTypes order) {
         List<String> fields = new LinkedList<>();
         List<Object> values = new LinkedList<>();
 
@@ -132,30 +194,12 @@ public class AbstractDAO<T> {
         return sendQuery(query, values);
     }
 
-    private List<Object> getFieldValues(T t, StatementTypes sqlType) throws IllegalAccessException {
-        List<Object> fieldValues = new LinkedList<>();
-        for (Field field : type.getDeclaredFields()) {
-            if (field.getName().startsWith("x_")) {
-                continue;
-            }
-
-            if (sqlType == StatementTypes.INSERT && field.getName().equals("id")) {
-                continue;
-            }
-
-            PropertyDescriptor propertyDescriptor = null;
-            try {
-                propertyDescriptor = new PropertyDescriptor(field.getName(), type);
-                Method method = propertyDescriptor.getReadMethod();
-                Object value = method.invoke(t);
-                fieldValues.add(value);
-            } catch (IntrospectionException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-        return fieldValues;
-    }
-
+    /**
+     * Makes an insert query and executes it
+     *
+     * @param t The object whose values will be inserted in the DB
+     * @return True on success | False on failure
+     */
     public Boolean insert(T t) {
         List<Object> values = null;
         try {
@@ -167,6 +211,12 @@ public class AbstractDAO<T> {
         return sendUpdate(query, values) != 0;
     }
 
+    /**
+     * Makes an update query and executes it
+     *
+     * @param t The object whose values will be updated in the DB
+     * @return True on success | False on failure
+     */
     public Boolean update(T t) {
         List<Object> referenceValues = null;
         try {
@@ -187,6 +237,12 @@ public class AbstractDAO<T> {
         return sendUpdate(query, referenceValues) != 0;
     }
 
+    /**
+     * Makes a delete query and executes it
+     *
+     * @param rules List of Pairs of String and Object, that is used to filter the data
+     * @return True on success | False on failure
+     */
     public Boolean delete(List<Pair<String, Object>> rules) {
         List<String> fields = new LinkedList<>();
         List<Object> values = new LinkedList<>();
@@ -205,14 +261,26 @@ public class AbstractDAO<T> {
         return sendUpdate(query, values) != 0;
     }
 
+    /**
+     * @return The last element of current type in the DB
+     */
     public T findLast() {
         return this.select(null, DESC).get(0);
     }
 
+    /**
+     * @return All the elements of current type in the DB
+     */
     public List<T> findAll() {
         return this.select(null, ASC);
     }
 
+    /**
+     * Find an element of current type by ID in the DB
+     *
+     * @param id The given id to search for
+     * @return The object if found | NULL if no element was found
+     */
     public T findById(int id) {
         List<Pair<String, Object>> rules = new LinkedList<>();
         rules.add(new Pair<>("id", id));
@@ -224,6 +292,12 @@ public class AbstractDAO<T> {
         return null;
     }
 
+    /**
+     * Creates objects from the result of a query that was made
+     *
+     * @param resultSet The result from a made query
+     * @return List of Objects of current type
+     */
     private List<T> createObjects(ResultSet resultSet) {
         List<T> list = new ArrayList<T>();
         Method method = null;

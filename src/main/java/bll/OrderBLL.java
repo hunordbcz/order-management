@@ -1,7 +1,6 @@
 package bll;
 
 import dao.OrderDAO;
-import exceptions.OutOfStock;
 import model.Client;
 import model.Invoice;
 import model.Order;
@@ -18,7 +17,15 @@ public class OrderBLL {
         orderDAO = new OrderDAO();
     }
 
-    public Boolean make(Client client, Product product, Double quantity) throws OutOfStock {
+    /**
+     * Make a new Order for a Client with a given Quantity of Products
+     *
+     * @param client   Given client
+     * @param product  Given product
+     * @param quantity Given quantity
+     * @return True on success | False on failure
+     */
+    public Boolean make(Client client, Product product, Double quantity) {
         if (!orderDAO.make(client, product, quantity)) {
             Controller.outOfStock();
         }
@@ -27,6 +34,11 @@ public class OrderBLL {
         return true;
     }
 
+    /**
+     * Get the last Order from the DB
+     *
+     * @return Order
+     */
     public Order getLast() {
         Order st = orderDAO.findLast();
         if (st == null) {
@@ -35,6 +47,12 @@ public class OrderBLL {
         return st;
     }
 
+    /**
+     * Insert Order into DB by object
+     *
+     * @param order Given order object
+     * @return True on success | False on failure
+     */
     public Boolean insert(Order order) {
         if (!orderDAO.insert(order)) {
             //todo throw new Couldn't insert.
@@ -43,6 +61,12 @@ public class OrderBLL {
         return true;
     }
 
+    /**
+     * Find Order from DB by ID
+     *
+     * @param id Given id
+     * @return True on success | False on failure
+     */
     public Order findById(int id) {
         Order st = orderDAO.findById(id);
         if (st == null) {
@@ -51,6 +75,13 @@ public class OrderBLL {
         return st;
     }
 
+    /**
+     * Find Order from DB by ID with adding Invoice to it's list
+     *
+     * @param id      Given id
+     * @param invoice Given invoice
+     * @return Order
+     */
     public Order findById(int id, Invoice invoice) {
         Order st = orderDAO.findById(id, invoice);
         if (st == null) {
@@ -59,6 +90,11 @@ public class OrderBLL {
         return st;
     }
 
+    /**
+     * Get every Order from DB
+     *
+     * @return List of Orders
+     */
     public List<Order> findAll() {
         List<Order> st = orderDAO.findAll();
         if (st == null) {

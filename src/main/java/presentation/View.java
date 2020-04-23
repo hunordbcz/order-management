@@ -10,6 +10,11 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.List;
 
+/**
+ * Generates PDFs
+ *
+ * @param <T>
+ */
 public class View<T> {
     PdfPTable table;
     Chunk text;
@@ -19,6 +24,10 @@ public class View<T> {
         table = null;
     }
 
+    /**
+     * Creates a new file, adds content to it and prints it
+     * @param input The name of the output file
+     */
     public void print(String input) {
         try {
             Document document = new Document();
@@ -39,6 +48,12 @@ public class View<T> {
         }
     }
 
+    /**
+     * Gets the fields names for an object
+     *
+     * @param obj The given object
+     * @return String array of the field names
+     */
     private String[] getDeclaredFields(T obj) {
         String[] fields = new String[obj.getClass().getDeclaredFields().length];
         int size = 0;
@@ -52,6 +67,11 @@ public class View<T> {
         return fields;
     }
 
+    /**
+     * Add table header to file
+     *
+     * @param fields String array of header names
+     */
     public void addTableHeader(String[] fields) {
         table = new PdfPTable(fields.length);
 
@@ -64,17 +84,32 @@ public class View<T> {
         }
     }
 
+    /**
+     * Add table header to file
+     *
+     * @param obj Object whose field names will be added as table headers
+     */
     public void addTableHeader(T obj) {
         String[] fields = getDeclaredFields(obj);
         this.addTableHeader(fields);
     }
 
+    /**
+     * Add rows to the table
+     *
+     * @param fields String array of cell values
+     */
     public void addRows(String[] fields) {
         for (String field : fields) {
             table.addCell(field);
         }
     }
 
+    /**
+     * Add rows to the table
+     *
+     * @param objects Object whose field values will be added as table headers
+     */
     public void addRows(List<T> objects) {
         for (T object : objects) {
             for (Field field : object.getClass().getDeclaredFields()) {
@@ -89,6 +124,9 @@ public class View<T> {
         }
     }
 
+    /**
+     * @param message String that will be added to the output files first line
+     */
     public void addMessage(String message) {
         Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
         text = new Chunk(message, font);

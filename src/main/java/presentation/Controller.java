@@ -3,7 +3,6 @@ package presentation;
 import bll.ClientBLL;
 import bll.OrderBLL;
 import bll.ProductBLL;
-import exceptions.OutOfStock;
 import model.Client;
 import model.Invoice;
 import model.Order;
@@ -127,7 +126,6 @@ public class Controller {
 
     /**
      * Processes the order command from the input file
-     *
      * @param arguments The fields that describe the order that will be made
      */
     public void order(String[] arguments) {
@@ -139,11 +137,7 @@ public class Controller {
         Product product = productBLL.findByName(arguments[1].trim());
         double quantity = Double.parseDouble(arguments[2].trim());
 
-        try {
-            orderBLL.make(client, product, quantity);
-        } catch (OutOfStock outOfStock) {
-            outOfStock.printStackTrace();
-        }
+        orderBLL.make(client, product, quantity);
     }
 
     /**
